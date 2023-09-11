@@ -1,0 +1,11 @@
+/* Создайте переменную для количества столбцов */
+:root {
+    --board-columns: 8; /* Измените на нужное количество столбцов */
+  }
+  
+  /* Используйте переменную в grid-template-columns */
+  .chessboard {
+    display: grid;
+    grid-template-columns: repeat(var(--board-columns), 20px);
+    grid-gap: 0;
+  }
