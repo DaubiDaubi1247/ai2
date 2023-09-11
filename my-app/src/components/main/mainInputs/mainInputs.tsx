@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import NQueensSolver from "../../../common/queenSolver/queenSolver";
 import ChessBoardHandler from "../../../common/board/boardHandler";
+import {QueenSolverStatistic} from "../../../common/queenSolver/queenSolverStatistic";
 
 interface MainInputsI {
     setBoard: (reactNodeArr: React.ReactNode[]) => void,
-    setChartIsVisible : (chartIsVisible : boolean) => void
+    setChartIsVisible : (chartIsVisible : boolean) => void,
+    setQueensSolverStatistic : (queenStatistic : QueenSolverStatistic) => void,
 }
 
-const MainInputs: React.FC<MainInputsI> = ({setBoard, setChartIsVisible}) => {
+const MainInputs: React.FC<MainInputsI> = ({setBoard, setChartIsVisible, setQueensSolverStatistic}) => {
     const [maxTemperature, setMaxTemperature] = useState<number>(100);
     const [minTemperature, setMinTemperature] = useState<number>(0.1);
     const [coolingRate, setCoolingRate] = useState<number>(0.95);
@@ -38,7 +40,10 @@ const MainInputs: React.FC<MainInputsI> = ({setBoard, setChartIsVisible}) => {
         setBoard([]);
         const queensHandler = new NQueensSolver(numQueens, maxTemperature, minTemperature, coolingRate, numSteps);
 
-        setBoard(ChessBoardHandler.getBoard(numQueens, queensHandler.solveNQueens()));
+        const queensSolverStatistic = queensHandler.solveNQueens();
+        setQueensSolverStatistic(queensSolverStatistic);
+
+        setBoard(ChessBoardHandler.getBoard(numQueens, queensSolverStatistic.queens));
         setChartIsVisible(true);
 
         document.documentElement.style.setProperty("--board-columns", numQueens.toString());

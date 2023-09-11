@@ -16,12 +16,13 @@ export default class NQueensSolver {
         this.countStepsForStableTemperature = countStepsForStableTemperature;
     }
 
-    public solveNQueens(): number[] {
+    public solveNQueens(): QueenSolverStatistic {
 
         let solutionStatistic = new QueenSolverStatistic();
 
         this.queens = this.initialState();
         let currentEnergy = this.calculateEnergy(this.queens);
+        let iterations = 0;
 
         while (this.maxTemperature > this.minTemperature) {
 
@@ -43,13 +44,19 @@ export default class NQueensSolver {
                 }
                 
             }
+
+            iterations += this.countStepsForStableTemperature;
+
             solutionStatistic.addCountBadSolution(countBadSolution);
             solutionStatistic.addEnergyBestSolution(bestEnergy);
             solutionStatistic.addTemperature(this.maxTemperature);
+            solutionStatistic.addIteration(iterations);
             this.maxTemperature *= this.coolingRate;
         }
 
-        return this.queens;
+        solutionStatistic.queens = this.queens;
+
+        return solutionStatistic;
     }
 
     private initialState(): number[] {
