@@ -1,17 +1,15 @@
 
 export default class BinaryART1 {
-    private p: number;
     private vigilance: number;
     private beta: number;
     public clusters : Claster[];
-    private addedInCluster : boolean;
+    private vectorSize : number
 
-    constructor(inputSize: number, categorySize: number, vigilance: number) {
+    constructor(beta: number, vectorSize: number, vigilance: number) {
         this.vigilance = vigilance;
-        this.beta = 1.0;
+        this.beta = beta;
         this.clusters = [];
-        this.p = 0.9;
-        this.addedInCluster = false;
+        this.vectorSize = vectorSize;
     }
 
     train(input: number[][]): void {
@@ -28,7 +26,6 @@ export default class BinaryART1 {
                     if ( this.isPassedAllTests(input[i], this.clusters[j].prototype)) {
                         this.findVectorInAllClasterAndDel(this.clusters, input[i], j)
                         this.clusters[j].addChild(input[i]);
-                        this.addedInCluster = true;
                         break;
                     }
                 }
@@ -83,7 +80,7 @@ export default class BinaryART1 {
 
 }
 
-class Claster {
+export class Claster {
     public prototype : number[]
     public children : Array<number[]>;
 
