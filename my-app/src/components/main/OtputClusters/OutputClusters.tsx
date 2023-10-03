@@ -20,7 +20,7 @@ const OutputClusters : React.FC<ClustersProps> = ({clusters}) => {
     // }
 
     return (
-        <div>
+        <div style={{display : 'flex'}}>
             {clustersView}
         </div>
     );

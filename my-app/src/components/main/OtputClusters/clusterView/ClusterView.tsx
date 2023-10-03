@@ -16,7 +16,7 @@ const ClusterView : React.FC<ClusterProps>= ({cluster, counterClusters}) => {
     const clusterChildren = cluster.children.map(el => <div style={{borderBottom : "solid"}}>{clusterItemsToJSX(el)}</div>)
 
     return (
-        <div>
+        <div style={{marginRight : "20px"}}>
             <h1>Кластер #{counterClusters}</h1>
             <div>
                 <h2>Прототип класстера</h2>

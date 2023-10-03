@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import BinaryART1, {Claster} from "../../../common/artAlgorithmSolver/ArtAlgorithmSolver";
+import MatrixConverter from "../../../common/matrixConverter/MatrixConverter";
 
 interface InputFormProps {
    setIsVisible : (visible : boolean) => void,
@@ -7,9 +8,10 @@ interface InputFormProps {
 }
 const InputForm: React.FC<InputFormProps> = ({setClusters, setIsVisible}) => {
   // Состояния для параметров
-  const [vigilance, setVigilance] = useState<number>(0.5);
+  const [vigilance, setVigilance] = useState<number>(0.9);
   const [vectorSize, setVectorSize] = useState<number>(4);
   const [beta, setBeta] = useState<number>(1);
+    const [fileList, setFileList] = useState<FileList | null>();
 
   // Обработчики изменения значений параметров
   const handleVigilanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,18 +31,14 @@ const InputForm: React.FC<InputFormProps> = ({setClusters, setIsVisible}) => {
       setBeta(newValue);
   };
 
-
-// Обучение
-  const trainingData = [
-    [1,1,1,0],
-    [1,1,1,0],
-    [1,0,0,0],
-    [1,0,0,0]
-  ];
-
-  const onClickHandler = () => {
+  const onClickHandler = async () => {
     const art1 = new BinaryART1(beta, vectorSize, vigilance);
-    art1.train(trainingData)
+
+    const matrixConverter = new MatrixConverter();
+
+      if (fileList) {
+          art1.train(await matrixConverter.convertFile(fileList[0]))
+      }
 
     setIsVisible(true)
     setClusters(art1.clusters)
@@ -79,6 +77,8 @@ const InputForm: React.FC<InputFormProps> = ({setClusters, setIsVisible}) => {
           onChange={handleBetaChange}
         />
       </label>
+
+        <input type="file" id="fileInput" onChange={(e) => setFileList(e.target.files)}/>
 
       <button onClick={onClickHandler}>Получить решение</button>
     </div>
