@@ -1,108 +1,175 @@
+export interface City {
+    name: string;
+    x: number;
+    y: number;
+}
 
-export default class BinaryART1 {
-    private vigilance: number;
+interface Ant {
+    tour: City[];
+    tourLength: number;
+}
+
+export class AntColonyTSP {
+    private cities: City[];
+    private numAnts: number;
+    private maxGenerations: number;
+    private alpha: number;
     private beta: number;
-    public clusters: Claster[];
-    private vectorSize: number
-    private isClusterAdded: boolean
+    private rho: number;
+    private q: number;
+    private pheromoneMatrix: number[][];
+    public  visibilityMatrix: number[][];
 
-    constructor(beta: number, vectorSize: number, vigilance: number) {
-        this.vigilance = vigilance;
+    constructor(
+        cities: City[],
+        numAnts: number,
+        maxGenerations: number,
+        alpha: number,
+        beta: number,
+        rho: number,
+        q: number
+    ) {
+        this.cities = cities;
+        this.numAnts = numAnts;
+        this.maxGenerations = maxGenerations;
+        this.alpha = alpha;
         this.beta = beta;
-        this.clusters = [];
-        this.isClusterAdded = true;
-        this.vectorSize = vectorSize;
-    }
+        this.rho = rho;
+        this.q = q;
+        this.pheromoneMatrix = [];
+        this.visibilityMatrix = [];
+        // this.visibilityMatrix = [
+        //     [0, 10, 15, 20],
+        //     [10, 0, 35, 25],
+        //     [15, 35, 0, 30],
+        //     [20, 25, 30, 0]
+        //   ];
 
-    train(input: number[][]): void {
-        this.clusters.push(new Claster(input[0]));
-        for (let index = 0; this.isClusterAdded && index < 10; index++) {
-            this.isClusterAdded = false
-            debugger
-            for (let i = 0; i < input.length; i++) {
-                let j = 0;
-                for (; j < this.clusters.length; j++) {
-                    if (this.clusters[j].isChildrenHasOwn(input[i])) {
-                        continue
-                    }
+        for (let i = 0; i < cities.length; i++) {
+            this.pheromoneMatrix[i] = new Array(cities.length).fill(1);
+            this.visibilityMatrix[i] = new Array(cities.length);
+        }
 
-                    if (this.isPassedAllTests(input[i], this.clusters[j].prototype)) {
-                        this.findVectorInAllClasterAndDel(this.clusters, input[i], j)
-                        this.clusters[j].addChild(input[i]);
-                        this.isClusterAdded = true;
-                        break;
-                    }
-                }
-                if (j === this.clusters.length) {
-                    this.findVectorInAllClasterAndDel(this.clusters, input[i], -1)
-                    const newCluster = new Claster(input[i]);
-                    newCluster.addChild(input[i]);
-                    this.clusters.push(newCluster);
-                    this.isClusterAdded = true;
+        for (let i = 0; i < cities.length; i++) {
+            for (let j = 0; j < cities.length; j++) {
 
+                if (this.visibilityMatrix[i][j] !== undefined) continue
+                if (i !== j) {
+                    const distance = Math.floor(Math.random() * 101) + 1
+                    this.visibilityMatrix[i][j] = distance;
+                    this.visibilityMatrix[j][i] = distance;
+                } else {
+                    this.visibilityMatrix[i][j] = 0;
                 }
             }
         }
     }
 
-    private isPassedAllTests(vector: number[], vectorPrototype: number[]) {
-        return this.similarityTest(vector, vectorPrototype) && this.vigilanceTest(vector, vectorPrototype);
+    private selectNextCity(ant: Ant, currentIndex: number): number {
+        const rouletteWheel = Math.random();
+        let totalProbability = 0;
+
+        for (let i = 0; i < this.cities.length; i++) {
+            if (!ant.tour.includes(this.cities[i])) {
+                totalProbability +=
+                    (this.pheromoneMatrix[currentIndex][i] ** this.alpha) *
+                    (this.visibilityMatrix[currentIndex][i] ** this.beta);
+            }
+        }
+
+        let accumulatedProbability = 0;
+        for (let i = 0; i < this.cities.length; i++) {
+            if (!ant.tour.includes(this.cities[i])) {
+                const probability =
+                    (this.pheromoneMatrix[currentIndex][i] ** this.alpha) *
+                    (this.visibilityMatrix[currentIndex][i] ** this.beta) /
+                    totalProbability;
+
+                if (accumulatedProbability + probability >= rouletteWheel) {
+                    return i;
+                }
+                accumulatedProbability += probability;
+            }
+        }
+
+        // Fallback: should not reach this point
+        for (let i = 0; i < this.cities.length; i++) {
+            if (!ant.tour.includes(this.cities[i])) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
-    private vigilanceTest(vector: number[], vectorPrototype: number[]): boolean {
-        const byteAndImportance = this.getImportance(vectorPrototype.map((el, i) => el & vector[i]))
+    public solveTSP(): Ant {
 
-        return byteAndImportance / this.getImportance(vector) >= this.vigilance
-    }
+        this.pheromoneMatrix.forEach(el => el = new Array(this.cities.length).fill(1))
+        let bestAnt: Ant = { tour: [], tourLength: Number.MAX_VALUE };
 
-    // Функция для теста на схожесть
-    private similarityTest(vector: number[], vectorPrototype: number[]): boolean {
-        const byteAndImportance = this.getImportance(vectorPrototype.map((el, i) => el & vector[i]))
-        const firstDrob = byteAndImportance / (this.beta + this.getImportance(vectorPrototype))
+        for (let generation = 0; generation < this.maxGenerations; generation++) {
+            const ants: Ant[] = [];
 
-        const secondDrob = (this.getImportance(vector) / (this.beta + vector.length))
+            for (let antIndex = 0; antIndex < this.numAnts; antIndex++) {
+                const ant: Ant = { tour: [], tourLength: 0 };
 
-        return firstDrob > secondDrob;
-    }
+                // Initialize ant's tour with a random city
+                const randomCityIndex = 0;
+                ant.tour.push(this.cities[randomCityIndex]);
 
-    private getImportance(vector: number[]): number {
-        return vector.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    }
+                for (let i = 1; i < this.cities.length; i++) {
+                    const currentIndex = this.cities.indexOf(ant.tour[ant.tour.length - 1]);
+                    const nextCityIndex = this.selectNextCity(ant, currentIndex);
+                    ant.tour.push(this.cities[nextCityIndex]);
+                    ant.tourLength += this.visibilityMatrix[currentIndex][nextCityIndex];
+                }
+                // Return to the initial city
+                ant.tourLength +=
+                    this.visibilityMatrix[this.cities.indexOf(ant.tour[ant.tour.length - 1])][
+                        this.cities.indexOf(ant.tour[0])
+                        ];
+                ant.tour.push(ant.tour[0]);
 
-    private findVectorInAllClasterAndDel(clusters: Claster[], vectorE: number[], ignoreIndex: number) {
-        let delIndex = -1;
+                if (ant.tourLength < bestAnt.tourLength) {
+                    bestAnt = { ...ant };
+                }
 
-        for (let i = 0; i < clusters.length; i++) {
-            if (i !== ignoreIndex) {
-                if ((delIndex = clusters[i].children.indexOf(vectorE)) !== -1) {
-                    clusters[i].children.splice(delIndex, 1);
-                    return
+                ants.push(ant);
+            }
+
+            // Update pheromone levels
+            for (let i = 0; i < this.cities.length; i++) {
+                for (let j = 0; j < this.cities.length; j++) {
+                    if (i !== j) {
+                        this.pheromoneMatrix[i][j] = (1 - this.rho) * this.pheromoneMatrix[i][j];
+
+                        ants.forEach((ant) => {
+                            const currentIndex = this.cities.indexOf(ant.tour[i]);
+                            const nextIndex = this.cities.indexOf(ant.tour[i + 1]);
+
+                            this.pheromoneMatrix[currentIndex][nextIndex] += this.q / ant.tourLength;
+                            this.pheromoneMatrix[nextIndex][currentIndex] += this.q / ant.tourLength;
+                        });
+                    }
                 }
             }
         }
+
+        return bestAnt;
     }
 
+    public printDistanceMatrix() {
+            // Выводим матрицу расстояний с пояснениями
+    for (let i = 0; i < this.cities.length; i++) {
+        for (let j = 0; j < this.cities.length; j++) {
+          const cityA = this.cities[i].name;
+          const cityB = this.cities[j].name;
+          const distance = this.visibilityMatrix[i][j];
+  
+          console.log(`Расстояние между ${cityA} и ${cityB}: ${distance}`);
+        }
+      }
+    }
+    
 }
 
-export class Claster {
-    public prototype: number[]
-    public children: Array<number[]>;
-
-    constructor(prototype: number[]) {
-        this.prototype = [...prototype];
-        this.children = [];
-    }
-
-    public isChildrenHasOwn(vectorChild: number[]): boolean {
-        return this.children.includes(vectorChild);
-    }
-
-    public addChild(vectorChild: number[]) {
-        this.children.push(vectorChild);
-        this.changePrototype(vectorChild);
-    }
-
-    public changePrototype(newChild: number[]) {
-        this.prototype = this.prototype.map((el, i) => el & newChild[i])
-    }
-}
