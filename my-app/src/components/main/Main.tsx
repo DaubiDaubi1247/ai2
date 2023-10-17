@@ -3,15 +3,15 @@ import { AntColonyTSP, City } from "../../common/artAlgorithmSolver/ArtAlgorithm
 import Graph from "./Graph";
 import { Node, Edge } from "vis-network/standalone/esm/vis-network";
 
-const initMatr = (cities : City[])  =>  {
-    const visibilityMatrix : number[][] = [];
+const initMatr = (towns : number) => {
+    const visibilityMatrix: number[][] = [];
 
-    for (let i = 0; i < cities.length; i++) {
-        visibilityMatrix[i] = new Array(cities.length);
+    for (let i = 0; i < towns; i++) {
+        visibilityMatrix[i] = new Array(towns);
     }
 
-    for (let i = 0; i < cities.length; i++) {
-        for (let j = 0; j < cities.length; j++) {
+    for (let i = 0; i < towns; i++) {
+        for (let j = 0; j < towns; j++) {
 
             if (visibilityMatrix[i][j] !== undefined) continue
             if (i !== j) {
@@ -27,18 +27,48 @@ const initMatr = (cities : City[])  =>  {
     return visibilityMatrix;
 }
 
+const initCities = (countCity : number) => {
+
+    const cities: City[] = []
+
+    for (let i = 0; i < countCity; i++) {
+        cities.push({ label: `City ${i + 1}`, id: i + 1})
+    }
+
+    return cities;
+}
+
 const Main: FC = () => {
 
-    const cities: City[] = [
-        { label: 'City 1', id: 1, x: 100, y: 100 },
-        { label: 'City 2', id: 2, x: 200, y: 200 },
-        { label: 'City 3', id: 3, x: 101, y: 101 },
-        { label: 'City 4', id: 4, x: 400, y: 150 },
-        { label: 'City 5', id: 5, x: 600, y: 700 },
-        // Добавьте остальные города с их координатами
-    ];
-    const [visibilityMatr, setVisibilityMatr] = useState(initMatr(cities))
+    const [alpha, setAlpha] = useState(3.0);
+    const [beta, setBeta] = useState(1.0);
+    const [rho, setRho] = useState(0.1);
+    const [q, setQ] = useState(1.0);
+    const [towns, settowns] = useState(10);
+
+    const handleAlphaChange = (e: any) => {
+        setAlpha(parseFloat(e.target.value));
+    };
+
+    const handleBetaChange = (e: any) => {
+        setBeta(parseFloat(e.target.value));
+    };
+
+    const handleRhoChange = (e: any) => {
+        setRho(parseFloat(e.target.value));
+    };
+
+    const handleQChange = (e: any) => {
+        setQ(parseFloat(e.target.value));
+    };
+    const handleTownsChange = (e: any) => {
+        settowns(parseInt(e.target.value));
+    };
+
+    const [visibilityMatr, setVisibilityMatr] = useState(initMatr(towns))
     const [edges, setedges] = useState<Edge[]>([])
+
+    const [cities, setcities] = useState<City[]>([])
 
     const [isVisble, setisVisble] = useState(false)
     const [minDist, setminDist] = useState("")
@@ -47,26 +77,24 @@ const Main: FC = () => {
 
     const numAnts = 10;
     const maxGenerations = 100;
-    const alpha = 2.0;
-    const beta = 1.0;
-    const rho = 0.1;
-    const q = 1.0;
-    
+
     const onClickCreateNewMatr = () => {
-        setVisibilityMatr(initMatr(cities))
+        setVisibilityMatr(initMatr(towns))
     }
-    
+
     const onClickHandler = () => {
-        const antColony = new AntColonyTSP(cities, numAnts, maxGenerations, alpha, beta, rho, q, visibilityMatr);
+        const cities1 = initCities(towns);
+        const antColony = new AntColonyTSP(cities1, numAnts, maxGenerations, alpha, beta, rho, q, visibilityMatr);
         const result = antColony.solveTSP();
 
-        const edge : Edge[] = [];
-        const edgeForPrint : Edge[] = [];
+        const edge: Edge[] = [];
+        const edgeForPrint: Edge[] = [];
 
-        for (let i = 0; i < cities.length; i++) {
-            for (let j = i + 1; j < cities.length; j++) {
-                edge.push({ from: cities[i].id, to: cities[j].id });
-                edge.push({ from: cities[j].id, to: cities[i].id });
+        for (let i = 0; i < cities1.length; i++) {
+            for (let j = i + 1; j < cities1.length; j++) {
+                edge.push({ from: cities1[i].id, to: cities1[j].id, label : visibilityMatr[i][j].toString()});
+                edge.push({ from: cities1[j].id, to: cities1[i].id,label : visibilityMatr[i][j].toString() });
+                
             }
         }
 
@@ -74,7 +102,7 @@ const Main: FC = () => {
             edge.forEach(el => {
                 if (el.from === result.tour[i].id && el.to === result.tour[i + 1].id) {
                     el.arrows = "to"
-                    el.color = {color : "green"}
+                    el.color = { color: "green" }
                     edgeForPrint.push(el);
                 }
             })
@@ -83,7 +111,7 @@ const Main: FC = () => {
         let f = false;
 
         edge.forEach(el => {
-            f =false
+            f = false
             for (let i = 0; i < edgeForPrint.length; i++) {
                 if (el.from === edgeForPrint[i].from && el.to === edgeForPrint[i].to || el.from === edgeForPrint[i].to && el.to === edgeForPrint[i].from) {
                     f = true;
@@ -99,6 +127,7 @@ const Main: FC = () => {
 
         setedges(edgeForPrint);
         setisVisble(true)
+        setcities(cities1)
 
         console.log('Best Tour:', result.tour.map((city) => city.label).join(' -> '));
         console.log('Minimum Distance:', result.tourLength);
@@ -108,11 +137,52 @@ const Main: FC = () => {
 
     return (
         <div>
+            <span>Введите альфа</span>
+            <input
+                type="number"
+                style={{display: "block"}}
+                placeholder="Введите альфа"
+                value={alpha}
+                onChange={handleAlphaChange}
+            />
+            <span>Введите бета</span>
+            <input
+                type="number"
+                style={{display: "block"}}
+                placeholder="Введите бета"
+                value={beta}
+                onChange={handleBetaChange}
+            />
+            <span>Введите испарения феромонов</span>
+            <input
+            style={{display: "block"}}
+                type="number"
+                placeholder="Введите испарения феромонов"
+                value={rho}
+                onChange={handleRhoChange}
+            />
+            <span>Введите количество феромона оставляемое муравьем</span>
+            <input
+                type="number"
+                style={{display: "block"}}
+                placeholder="Введите количество феромона"
+                value={q}
+                onChange={handleQChange}
+            />
+
+            <span>Введите количество городов</span>
+            <input
+                type="number"
+                style={{display: "block"}}
+                placeholder="Введите количество городов"
+                value={towns}
+                onChange={handleTownsChange}
+            />
             <button onClick={onClickHandler}> получить решение</button>
             <button onClick={onClickCreateNewMatr}>Создать новую матрицу</button>
 
             <div>
-                {isVisble && <Graph nodes={cities} edges={edges}/>}
+                {isVisble && <Graph nodes={cities} edges={edges} />}
             </div>
 
             <div>

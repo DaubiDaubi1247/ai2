@@ -1,8 +1,6 @@
 import { Node } from "vis-network/standalone/esm/vis-network";
 
 export interface City extends Node {
-    x: number;
-    y: number;
 }
 
 interface Ant {

@@ -9,15 +9,15 @@ export interface GrapgProps {
 }
 
 const options: Options = {
-    layout: {
-        hierarchical: false,
-      },
+  autoResize : false,
     edges: {
         arrows: {
           to: {scaleFactor: 0.9 }, // Уменьшает размер стрелкиб
         },
         
       },
+      width: '800px', // Ширина контейнера
+      height: '600px', // Высота контейнера
 };
 
 const Graph : React.FC<GrapgProps> = ({nodes, edges }) => {
@@ -29,7 +29,7 @@ const Graph : React.FC<GrapgProps> = ({nodes, edges }) => {
 
   return (
     <>
-      <div style={{ height: 400, width: "100%" }} ref={ref} />
+      <div style={{ height: 500, width: "100%" }} ref={ref} />
     </>
   );
 };
