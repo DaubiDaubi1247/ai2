@@ -35,9 +35,24 @@ export interface GrapgProps {
 //     { from: 2, to: 7, value: 4 },
 //   ];
 
-const options: Options = {};
+const options: Options = {
+    layout: {
+        hierarchical: false,
+      },
+    edges: {
+        arrows: {
+          to: {scaleFactor: 0.9 }, // Уменьшает размер стрелкиб
+        },
+        smooth: {
+            enabled : true,
+            roundness : 0.1,
+            type: 'dynamic',
+          },
+      },
+};
 
 const Graph : React.FC<GrapgProps> = ({nodes, edges }) => {
+    debugger
   const { ref, network } = useVisNetwork({
     options,
     edges,
@@ -52,7 +67,6 @@ const Graph : React.FC<GrapgProps> = ({nodes, edges }) => {
 
   return (
     <>
-      <button onClick={handleClick}>Focus</button>
       <div style={{ height: 700, width: "100%" }} ref={ref} />
     </>
   );
