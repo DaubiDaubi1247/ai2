@@ -28,7 +28,8 @@ export class AntColonyTSP {
         alpha: number,
         beta: number,
         rho: number,
-        q: number
+        q: number,
+        visMatrix : number[][]
     ) {
         this.cities = cities;
         this.numAnts = numAnts;
@@ -38,31 +39,10 @@ export class AntColonyTSP {
         this.rho = rho;
         this.q = q;
         this.pheromoneMatrix = [];
-        this.visibilityMatrix = [];
-        // this.visibilityMatrix = [
-        //     [0, 10, 15, 20],
-        //     [10, 0, 35, 25],
-        //     [15, 35, 0, 30],
-        //     [20, 25, 30, 0]
-        //   ];
+        this.visibilityMatrix = visMatrix;
 
         for (let i = 0; i < cities.length; i++) {
             this.pheromoneMatrix[i] = new Array(cities.length).fill(1);
-            this.visibilityMatrix[i] = new Array(cities.length);
-        }
-
-        for (let i = 0; i < cities.length; i++) {
-            for (let j = 0; j < cities.length; j++) {
-
-                if (this.visibilityMatrix[i][j] !== undefined) continue
-                if (i !== j) {
-                    const distance = Math.floor(Math.random() * 101) + 1
-                    this.visibilityMatrix[i][j] = distance;
-                    this.visibilityMatrix[j][i] = distance;
-                } else {
-                    this.visibilityMatrix[i][j] = 0;
-                }
-            }
         }
     }
 

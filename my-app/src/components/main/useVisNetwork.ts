@@ -27,7 +27,7 @@ export default (props: UseVisNetworkOptions) => {
       addNetwork(instance);
     }
     return () => network?.destroy();
-  }, []);
+  }, [edges]);
 
   return {
     network,
