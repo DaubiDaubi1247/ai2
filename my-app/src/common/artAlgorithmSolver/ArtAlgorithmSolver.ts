@@ -1,5 +1,6 @@
-export interface City {
-    name: string;
+import { Node } from "vis-network/standalone/esm/vis-network";
+
+export interface City extends Node {
     x: number;
     y: number;
 }
@@ -162,8 +163,8 @@ export class AntColonyTSP {
             // Выводим матрицу расстояний с пояснениями
     for (let i = 0; i < this.cities.length; i++) {
         for (let j = 0; j < this.cities.length; j++) {
-          const cityA = this.cities[i].name;
-          const cityB = this.cities[j].name;
+          const cityA = this.cities[i].label;
+          const cityB = this.cities[j].label;
           const distance = this.visibilityMatrix[i][j];
   
           console.log(`Расстояние между ${cityA} и ${cityB}: ${distance}`);
