@@ -110,27 +110,24 @@ const Main: FC = () => {
 
         let f = false;
 
-        edge.forEach(el => {
-            f = false
-            for (let i = 0; i < edgeForPrint.length; i++) {
-                if (el.from === edgeForPrint[i].from && el.to === edgeForPrint[i].to || el.from === edgeForPrint[i].to && el.to === edgeForPrint[i].from) {
-                    f = true;
-                    break;
-                }
-            }
+        // edge.forEach(el => {
+        //     f = false
+        //     for (let i = 0; i < edgeForPrint.length; i++) {
+        //         if (el.from === edgeForPrint[i].from && el.to === edgeForPrint[i].to || el.from === edgeForPrint[i].to && el.to === edgeForPrint[i].from) {
+        //             f = true;
+        //             break;
+        //         }
+        //     }
 
-            if (!f) {
-                edgeForPrint.push(el)
-            }
+        //     if (!f) {
+        //         edgeForPrint.push(el)
+        //     }
 
-        })
+        // })
 
         setedges(edgeForPrint);
         setisVisble(true)
         setcities(cities1)
-
-        console.log('Best Tour:', result.tour.map((city) => city.label).join(' -> '));
-        console.log('Minimum Distance:', result.tourLength);
         setminDist(result.tourLength.toString())
     }
 

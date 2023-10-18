@@ -17,7 +17,7 @@ export class AntColonyTSP {
     private rho: number;
     private q: number;
     private pheromoneMatrix: number[][];
-    public  visibilityMatrix: number[][];
+    public visibilityMatrix: number[][];
 
     constructor(
         cities: City[],
@@ -27,7 +27,7 @@ export class AntColonyTSP {
         beta: number,
         rho: number,
         q: number,
-        visMatrix : number[][]
+        visMatrix: number[][]
     ) {
         this.cities = cities;
         this.numAnts = numAnts;
@@ -93,7 +93,7 @@ export class AntColonyTSP {
                 const ant: Ant = { tour: [], tourLength: 0 };
 
                 // Initialize ant's tour with a random city
-                const randomCityIndex = 0;
+                const randomCityIndex = antIndex;
                 ant.tour.push(this.cities[randomCityIndex]);
 
                 for (let i = 1; i < this.cities.length; i++) {
@@ -104,51 +104,49 @@ export class AntColonyTSP {
                 }
                 // Return to the initial city
                 ant.tourLength +=
-                    this.visibilityMatrix[this.cities.indexOf(ant.tour[ant.tour.length - 1])][
-                        this.cities.indexOf(ant.tour[0])
-                        ];
+                    this.visibilityMatrix[this.cities.indexOf(ant.tour[ant.tour.length - 1])]
+                    [this.cities.indexOf(ant.tour[0])];
                 ant.tour.push(ant.tour[0]);
 
                 if (ant.tourLength < bestAnt.tourLength) {
                     bestAnt = { ...ant };
                 }
 
+                for (let i = 0; i < ant.tour.length - 1; i++) {
+                    const currentIndex = this.cities.indexOf(ant.tour[i]);
+                    const nextIndex = this.cities.indexOf(ant.tour[i + 1]);
+
+                    this.pheromoneMatrix[currentIndex][nextIndex] += this.q / ant.tourLength;
+                    this.pheromoneMatrix[nextIndex][currentIndex] += this.q / ant.tourLength;
+                    
+                }
+
                 ants.push(ant);
             }
 
+            console.log(bestAnt.tourLength)
+            
             // Update pheromone levels
             for (let i = 0; i < this.cities.length; i++) {
                 for (let j = 0; j < this.cities.length; j++) {
                     if (i !== j) {
                         this.pheromoneMatrix[i][j] = (1 - this.rho) * this.pheromoneMatrix[i][j];
 
-                        ants.forEach((ant) => {
-                            const currentIndex = this.cities.indexOf(ant.tour[i]);
-                            const nextIndex = this.cities.indexOf(ant.tour[i + 1]);
+                        // ants.forEach((ant) => {
+                        //     const currentIndex = this.cities.indexOf(ant.tour[i]);
+                        //     const nextIndex = this.cities.indexOf(ant.tour[i + 1]);
 
-                            this.pheromoneMatrix[currentIndex][nextIndex] += this.q / ant.tourLength;
-                            this.pheromoneMatrix[nextIndex][currentIndex] += this.q / ant.tourLength;
-                        });
+                        //     this.pheromoneMatrix[currentIndex][nextIndex] += this.q / ant.tourLength;
+                        //     this.pheromoneMatrix[nextIndex][currentIndex] += this.q / ant.tourLength;
+                        // });
                     }
                 }
             }
         }
-
+        
+        console.log("")
         return bestAnt;
     }
 
-    public printDistanceMatrix() {
-            // Выводим матрицу расстояний с пояснениями
-    for (let i = 0; i < this.cities.length; i++) {
-        for (let j = 0; j < this.cities.length; j++) {
-          const cityA = this.cities[i].label;
-          const cityB = this.cities[j].label;
-          const distance = this.visibilityMatrix[i][j];
-  
-          console.log(`Расстояние между ${cityA} и ${cityB}: ${distance}`);
-        }
-      }
-    }
-    
 }
 
