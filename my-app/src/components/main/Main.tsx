@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { HopfieldNetwork } from '../../common/hopfield/Hopfield';
+import { CoscodNetwork } from '../../common/cosco/Cosco';
  // Предположим, что ваш класс находится в файле HopfieldNetwork.ts
 //@ts-ignore
 const Square = ({ isActive , onClick }) => {
@@ -28,9 +29,8 @@ const HopfieldNetworkUI = () => {
     
     
     const handlePredictClick = () => {
-    const hopfieldNet = new HopfieldNetwork(networkSize);
+    const hopfieldNet = new CoscodNetwork();
     const predictedPattern = hopfieldNet.predict(inputPattern);
-    debugger
     setOutputPattern(predictedPattern);
   };
 

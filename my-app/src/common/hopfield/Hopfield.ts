@@ -90,6 +90,7 @@ export class HopfieldNetwork {
                 -1
               ],
            ];
+           
       this.weights = new Array(this.patterns[0].length).fill(0).map(() => new Array(this.patterns[0].length).fill(0));
       this.threshold = 0;
       this.train()
@@ -114,16 +115,15 @@ export class HopfieldNetwork {
   
     predict(inputPattern: number[]): number[] {
       const size = inputPattern.length;
+      console.log(inputPattern)
       if (size !== this.weights.length) {
         throw new Error('Input pattern size must match the network size.');
       }
   
       let outputPattern: number[] = [...inputPattern];
       
-      let isEqualWithPrev = false;
-      
-      for (let i = 0; i < 1000; i++) {
-        let prev: number[] = [...outputPattern];
+      for (let epoch = 0; epoch < 1000; epoch++) {
+        let prev = [...outputPattern];
         for (let i = 0; i < size; i++) {
             let sum = 0;
             for (let j = 0; j < size; j++) {
@@ -132,10 +132,11 @@ export class HopfieldNetwork {
             outputPattern[i] = sum >= this.threshold ? 1 : -1;
           }
 
+
           if (this.containsArray(outputPattern) && this.arraysAreEqual(prev, outputPattern)) {
-              return outputPattern;
+            console.log(epoch)
+            return outputPattern
           }
-    
       }
   
       return outputPattern;
